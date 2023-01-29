@@ -5,7 +5,7 @@ import 'package:weather_forecast/src/tools/custom_app_exception.dart';
 
 class PlacesProvider{
 
-  Future<Map<String,dynamic>> searchPlaces(String search) async{  
+  Future<Map<String,dynamic>> searchPlaces(String search) async{
     Map<String,dynamic> result = {
       'status':false,
       'data':'',

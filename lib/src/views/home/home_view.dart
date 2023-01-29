@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_forecast/src/blocs/places_bloc/places_bloc.dart';
-import 'package:weather_forecast/src/models/data/place_model.dart';
-import 'package:weather_forecast/src/models/interface/selectable_item.dart';
+import 'package:weather_forecast/src/blocs/weather_bloc/weather_bloc.dart';
 import 'package:weather_forecast/src/tools/constants.dart';
+import 'package:weather_forecast/src/tools/routes_names.dart';
 import 'package:weather_forecast/src/widgets/search_places_widget.dart';
-import 'package:weather_forecast/src/widgets/search_widget.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -28,9 +26,7 @@ class _HomeViewState extends State<HomeView> {
               scaffoldKey.currentState!.showBottomSheet(
                 (context){
                 return  SearchPlacesWidget(
-                  onSelected: (place){
-                    print(place);
-                  },
+                  onSelected: (place)=>Navigator.of(context).pushNamed(weatherInfoRoute, arguments: place),
                 );
               });
             }
@@ -42,20 +38,10 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           child: Column(
             children: [
-              // SearchWidget<Place>(
-              //   label: 'Text', 
-              //   initialList: _places,
-              //   controller: _searchCont,
-              //   onSearch: (search)=>_getPlacesData(context, search),
-              //   getSelectedValue: (SelectableItem? item){
-
-              //   }), 
             ],
           ),
         ),
       ),
     );
   }
-
-
 }

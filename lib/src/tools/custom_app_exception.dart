@@ -5,7 +5,8 @@ import 'package:http/http.dart';
   dynamic returnResponse(Response response) {
     try{
       switch (response.statusCode) {
-        case 201: 200;
+        case 200:
+        case 201:
           var responseJson = json.decode(response.body.toString());
           return responseJson;
         case 400:

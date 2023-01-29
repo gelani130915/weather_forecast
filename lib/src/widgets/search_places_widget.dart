@@ -5,7 +5,8 @@ import 'package:weather_forecast/src/models/data/place_model.dart';
 
 class SearchPlacesWidget extends StatefulWidget {
   final Function(Place) onSelected;
-  const SearchPlacesWidget({Key? key, required this.onSelected}) : super(key: key);
+  const SearchPlacesWidget({Key? key, required this.onSelected})
+      : super(key: key);
 
   @override
   State<SearchPlacesWidget> createState() => _SearchPlacesWidgetState();
@@ -49,8 +50,8 @@ class _SearchPlacesWidgetState extends State<SearchPlacesWidget> {
                       title: Text(_places[index].display!),
                       subtitle: Text(_places[index].state!),
                       onTap: () {
+                        Navigator.of(context).pop();
                         widget.onSelected(_places[index]);
-                        Navigator.of(context).pop(_places[index].id);
                       },
                     ),
                   ))
