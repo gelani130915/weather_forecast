@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_forecast/src/blocs/weather_bloc/weather_bloc.dart';
 import 'package:weather_forecast/src/models/data/place_model.dart';
 import 'package:weather_forecast/src/models/data/weather_model.dart';
+import 'package:weather_forecast/src/tools/constants.dart';
 import 'package:weather_forecast/src/tools/paths.dart';
 import 'package:weather_forecast/src/tools/tools_functions.dart';
+import 'package:weather_forecast/src/tools/user_preferences.dart';
 
 class WeatherInfoView extends StatefulWidget {
   const WeatherInfoView({Key? key}) : super(key: key);
@@ -18,15 +23,25 @@ class WeatherInfoView extends StatefulWidget {
 class _WeatherInfoViewState extends State<WeatherInfoView> {
   Place? place;
   WeatherInfo? info;
+  final UserPreferences _userPreferences = UserPreferences();
+  List listDataFav = [];
   bool _favorite = false;
   bool _showLoader = true;
   bool _shorError = false;
   @override
   void initState() {
     super.initState();
+    listDataFav = json.decode(_userPreferences.favorites) as List<dynamic>;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       place = ModalRoute.of(context)!.settings.arguments as Place;
       _getPlacesData(context, place?.lat ?? "", place?.long ?? "");
+      for (Map<String, dynamic> item in listDataFav) {
+        if (item['id'] == place!.id!) {
+          setState(() {
+            _favorite = true;
+          });
+        }
+      }
     });
   }
 
@@ -59,7 +74,7 @@ class _WeatherInfoViewState extends State<WeatherInfoView> {
           }
         },
         child: Stack(
-          children: [ 
+          children: [
             CustomScrollView(
               slivers: <Widget>[
                 SliverAppBar(
@@ -68,7 +83,7 @@ class _WeatherInfoViewState extends State<WeatherInfoView> {
                   floating: false,
                   flexibleSpace: const FlexibleSpaceBar(
                     centerTitle: true,
-                    title: Text("Weather",
+                    title: Text(Constants.APP_NAME,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16.0,
@@ -84,107 +99,138 @@ class _WeatherInfoViewState extends State<WeatherInfoView> {
                             ? Theme.of(context).colorScheme.background
                             : null,
                         tooltip: 'Add to favorites',
-                        onPressed: () => setState(() {
-                              _favorite = !_favorite;
-                            })),
+                        onPressed: () {
+                          if (!_favorite) {
+                            listDataFav.add({
+                              'id': place!.id,
+                              'display': place!.display!,
+                              'lat': place!.lat,
+                              'long': place!.long,
+                              'citySlug': place!.citySlug,
+                              'state': place!.state,
+                              'country': place!.country,
+                            });
+                            _userPreferences.favorites =
+                                json.encode(listDataFav);
+                            setState(() {
+                              _favorite = true;
+                            });
+                          } else {
+                            final auxList = [];
+                            for (Map<String, dynamic> item in listDataFav) {
+                              if (item['id'] != place!.id!) {
+                                auxList.add(item);
+                              }
+                            }
+                            _userPreferences.favorites = json.encode(auxList);
+                            listDataFav = auxList;
+                            setState(() {
+                              _favorite = false;
+                            });
+                          }
+                        }),
                   ],
                 ),
-                if(!_showLoader)
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    _shorError
-                    ? [
-                      const SizedBox(height: 100),
-                      Center(
-                        child: SvgPicture.asset(
-                          Paths.errorImage,
-                          height: 250,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Center(
-                        child: Text(
-                          'Ups... Something has gone wrong',
-                          style: TextStyle(
-                            fontSize: 20
-                          ),
-                        ),
-                      )
-                    ]
-                    : [
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(top: 20, left: 15, right: 15),
-                      child: Card(
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        shadowColor: Theme.of(context).colorScheme.primary,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                place?.display ?? "--",
-                                style: const TextStyle(fontSize: 22),
+                if (!_showLoader)
+                  SliverList(
+                    delegate: SliverChildListDelegate(_shorError
+                        ? [
+                            const SizedBox(height: 100),
+                            Center(
+                              child: SvgPicture.asset(
+                                Paths.errorImage,
+                                height: 250,
                               ),
-                              const SizedBox(height: 5),
-                              Text(
-                                toolFunction.getCustomFormattedDateTime(
-                                    info?.current?.dt ?? 00,
-                                    'E, d MMM yyyy hh:mm a'),
+                            ),
+                            const SizedBox(height: 20),
+                            const Center(
+                              child: Text(
+                                'Ups... Something has gone wrong',
+                                style: TextStyle(fontSize: 20),
                               ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "${info?.current?.temp?.toString() ?? ""}°",
-                                    style: const TextStyle(fontSize: 40),
-                                  ),
-                                ],
-                              ),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: _getHousrWeather(),
+                            )
+                          ]
+                        : [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 20, left: 15, right: 15),
+                              child: Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
                                 ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(top: 10, left: 15, right: 15),
-                      child: Card(
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        shadowColor: Theme.of(context).colorScheme.primary,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: _getDaysWeather(),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 100)
-                  ]),
-                )
+                                shadowColor:
+                                    Theme.of(context).colorScheme.primary,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 15),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        place?.display ?? "--",
+                                        style: const TextStyle(fontSize: 22),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        toolFunction.getCustomFormattedDateTime(
+                                            info?.current?.dt ?? 00,
+                                            'E, d MMM yyyy hh:mm a'),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "${info?.current?.temp?.toString() ?? ""}°",
+                                            style:
+                                                const TextStyle(fontSize: 40),
+                                          ),
+                                        ],
+                                      ),
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: _getHousrWeather(),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 10, left: 15, right: 15),
+                              child: Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                shadowColor:
+                                    Theme.of(context).colorScheme.primary,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 15),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: _getDaysWeather(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 100)
+                          ]),
+                  )
               ],
             ),
             if (_showLoader)
@@ -257,10 +303,10 @@ class _WeatherInfoViewState extends State<WeatherInfoView> {
       ),
     ));
     for (Daily element in (info?.daily ?? [])) {
-      if (toolFunction.unixToDateTime(element.dt!).isAfter(DateTime.now()) &&
+      if (toolFunction.unixToDateTime(element.dt!).isAfter(DateTime.parse(DateFormat('yyyy-MM-dd 12:00').format(DateTime.now()))) &&
           toolFunction
               .unixToDateTime(element.dt!)
-              .isBefore(toolFunction.addDays(element.dt!, 7))) {
+              .isBefore(toolFunction.addDays(element.dt!, 5))) {
         result.add(Padding(
           padding: const EdgeInsets.all(8),
           child: Row(

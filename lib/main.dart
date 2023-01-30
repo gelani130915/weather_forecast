@@ -8,9 +8,14 @@ import 'package:weather_forecast/src/providers/weather_provider.dart';
 
 import 'package:weather_forecast/src/tools/routes.dart';
 import 'package:weather_forecast/src/tools/routes_names.dart';
+import 'package:weather_forecast/src/tools/user_preferences.dart';
 
-void main() {
-  runApp( MultiBlocProvider(
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = UserPreferences();
+  await prefs.initPrefs();
+
+  runApp(MultiBlocProvider(
     providers: [
       BlocProvider(
         create: (context) => PlacesBloc(provider: PlacesProvider()),
@@ -31,16 +36,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Weather Forecast',
-      theme: ThemeData(  
-        colorScheme: Theme.of(context).colorScheme.copyWith(
-          primary: const Color(0xff002674), 
-        ), 
-        appBarTheme: Theme.of(context).appBarTheme.copyWith( 
-          actionsIconTheme: Theme.of(context).iconTheme.copyWith(
-            color:const Color(0xffce348b)
-          ),
-        ) 
-      ),
+      theme: ThemeData(
+          colorScheme: Theme.of(context).colorScheme.copyWith(
+                primary: const Color(0xff002674),
+              ),
+          appBarTheme: Theme.of(context).appBarTheme.copyWith(
+                actionsIconTheme: Theme.of(context)
+                    .iconTheme
+                    .copyWith(color: const Color(0xffce348b)),
+              )),
       debugShowCheckedModeBanner: false,
       routes: getApplicationRoutes(),
       initialRoute: homeRoute,

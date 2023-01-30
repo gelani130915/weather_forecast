@@ -4,13 +4,11 @@
 
 import 'dart:convert';
 
-import 'package:weather_forecast/src/models/interface/selectable_item.dart';
-
 Place placeFromJson(String str) => Place.fromJson(json.decode(str));
 
 String placeToJson(Place data) => json.encode(data.toJson());
 
-class Place implements SelectableItem {
+class Place {
   Place({
     this.id,
     this.slug,
@@ -109,14 +107,4 @@ class Place implements SelectableItem {
         "popularity": popularity,
         "sort_criteria": sortCriteria,
       };
-
-  @override
-  String getId() {
-    return id!.toString();
-  }
-
-  @override
-  String getValue() {
-    return "$display - $state";
-  }
 }
