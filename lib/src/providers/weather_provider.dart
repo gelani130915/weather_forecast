@@ -12,7 +12,7 @@ class WeatherProvider{
       'message': '',
     };
     try {
-      final uriUrl = Uri.parse("${Constants.OPEN_WEATHER_API_URL}?lat=$lat&lon=$long&exclude=minutely,alerts&appid=${Constants.OPEN_WEATHER_API_KEY}");
+      final uriUrl = Uri.parse("${Constants.OPEN_WEATHER_API_URL}?lat=$lat&lon=$long&exclude=minutely,alerts&appid=${Constants.OPEN_WEATHER_API_KEY}&units=metric");
       final response = await http.get(uriUrl);
       final decodedResponse = returnResponse(response);
       if(response.statusCode == 200){  

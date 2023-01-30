@@ -31,8 +31,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Weather Forecast',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      theme: ThemeData(  
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+          primary: const Color(0xff002674), 
+        ), 
+        appBarTheme: Theme.of(context).appBarTheme.copyWith( 
+          actionsIconTheme: Theme.of(context).iconTheme.copyWith(
+            color:const Color(0xffce348b)
+          ),
+        ) 
       ),
       debugShowCheckedModeBanner: false,
       routes: getApplicationRoutes(),
