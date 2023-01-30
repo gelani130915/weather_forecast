@@ -1,16 +1,43 @@
+
 # weather_forecast
 
-A new Flutter project.
+The app's functionality is to be able to compare the weather forecast for the next 7 days, by day, of different destinations offered by Reservamos. The user must be able to input the name of cities and see the maximum and minimum temperature for these places.
 
-## Getting Started
+## Run Locally
 
-This project is a starting point for a Flutter application.
+Clone the project
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+  git clone https://github.com/gelani130915/weather_forecast.git
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Go to the project directory
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+  cd weather_forecast
+```
+
+Install dependencies
+
+```bash
+  flutter pub get
+```
+
+Run instructions for Android
+
+Ensure you have an Android emulator/device connected.
+
+```bash
+  flutter run
+```
+
+Run instructions for iOS
+
+Ensure you have an iOS simulator/device connected.
+
+```bash
+cd ios && pod install && cd ../
+flutter run
+```
+
+
