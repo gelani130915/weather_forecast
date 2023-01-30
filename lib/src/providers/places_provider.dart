@@ -18,7 +18,10 @@ class PlacesProvider{
       if(response.statusCode == 201){ 
         List<Place> places = []; 
         decodedResponse.forEach((item){
-          places.add(Place.fromJson(item));
+          final temp = Place.fromJson(item);
+          if(temp.resultType == "city"){
+            places.add(temp);
+          } 
         }); 
         result['data']    = places;
         result['message'] = 'OK'; 
